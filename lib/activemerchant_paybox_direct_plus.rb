@@ -81,6 +81,7 @@ module ActiveMerchant #:nodoc:
         add_invoice(post, options)
         add_creditcard(post, creditcard, options)
         add_user_reference(post, options)
+        add_test_error_code(post, options)
         commit('subscriber_authorization', money, post)
       end
 
@@ -90,6 +91,7 @@ module ActiveMerchant #:nodoc:
         add_invoice(post, options)
         add_creditcard(post, creditcard, options)
         add_user_reference(post, options)
+        add_test_error_code(post, options)
         commit('subscriber_purchase', money, post)
       end
 
@@ -99,6 +101,7 @@ module ActiveMerchant #:nodoc:
         add_invoice(post, options)
         add_reference(post, authorization)
         add_user_reference(post, options)
+        add_test_error_code(post, options)
         commit('subscriber_capture', money, post)
       end
 
@@ -118,6 +121,7 @@ module ActiveMerchant #:nodoc:
         add_invoice(post, options)
         add_reference(post, identification)
         add_user_reference(post, options)
+        add_test_error_code(post, options)
         commit('subscriber_credit', money, post)
       end
 
@@ -126,6 +130,7 @@ module ActiveMerchant #:nodoc:
         post = {}
         add_creditcard(post, creditcard, options)
         add_user_reference(post, options)
+        add_test_error_code(post, options)
         commit('subscriber_create', money, post)
       end
 
@@ -133,12 +138,14 @@ module ActiveMerchant #:nodoc:
         post = {}
         add_creditcard(post, creditcard, options)
         add_user_reference(post, options)
+        add_test_error_code(post, options)
         commit('subscriber_update', money, post)
       end
 
       def destroy_payment_profile(money, options)
         post = {}
         add_user_reference(post, options)
+        add_test_error_code(post, options)
         commit('subscriber_destroy', money, post)
       end
 
@@ -165,6 +172,10 @@ module ActiveMerchant #:nodoc:
       def add_reference(post, identification)
         post[:numappel] = identification[0,10]
         post[:numtrans] = identification[10,10]
+      end
+
+      def add_test_error_code(post, options)
+        post[:errorcodetest] = options[:errorcodetest] if options[:errorcodetest]
       end
 
       def parse(body)
