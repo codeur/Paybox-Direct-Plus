@@ -178,7 +178,7 @@ module ActiveMerchant #:nodoc:
       end
 
       def parse(body)
-        body.encode!(Encoding::ISO_8859_1)
+        body.encode!(Encoding::ISO_8859_1, {:invalid => :replace, :undef => :replace, :replace => '?'})
         results = {}
         body.split(/&/).each do |pair|
           key,val = pair.split(/=/)
