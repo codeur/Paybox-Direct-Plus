@@ -149,6 +149,8 @@ module ActiveMerchant #:nodoc:
       end
 
       def test?
+        Rails.logger.info "====================TEST MODE ??========================"
+        Rails.logger.info "#{@options[:test] || Base.gateway_mode == :test}"
         @options[:test] || Base.gateway_mode == :test
       end
 
@@ -193,6 +195,8 @@ module ActiveMerchant #:nodoc:
         parameters[:devise] = CURRENCY_CODES[options[:currency] || currency(money)]
         request_data = post_data(action,parameters)
         #debugger
+        Rails.logger.info "URL DE TEST"
+        Rails.logger.info test? ? TEST_URL : LIVE_URL
         response = parse(ssl_post(test? ? TEST_URL : LIVE_URL, request_data))
         response = parse(ssl_post(test? ? TEST_URL_BACKUP : LIVE_URL_BACKUP, request_data)) if service_unavailable?(response)
         Response.new(success?(response), message_from(response), response.merge({
