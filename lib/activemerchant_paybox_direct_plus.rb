@@ -165,11 +165,11 @@ module ActiveMerchant #:nodoc:
         post[:dateval] = expdate(creditcard)
         post[:cvv] = creditcard.verification_value if creditcard.verification_value?
       end
-      
+
       def add_user_reference(post, options)
         post[:refabonne] = options[:user_reference]
       end
-      
+
       def add_reference(post, identification)
         post[:numappel] = identification[0,10]
         post[:numtrans] = identification[10,10]
@@ -249,7 +249,8 @@ module ActiveMerchant #:nodoc:
           :rang => @options[:login].to_s[7..-1],
           :cle => @options[:password],
           :pays => '',
-          :archivage => parameters[:reference]
+          :archivage => parameters[:reference],
+          :activite => '027'
         )
 
         p = parameters.collect { |key, value| "#{key.to_s.upcase}=#{CGI.escape(value.to_s)}" }.join("&")
