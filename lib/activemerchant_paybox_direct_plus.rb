@@ -95,8 +95,9 @@ module ActiveMerchant #:nodoc:
       end
 
       def capture(money, authorization, options = {})
-        requires!(options, :user_reference)
+        requires!(options, :order_id, :user_reference)
         post = {}
+        add_invoice(post, options)
         add_reference(post, authorization)
         add_user_reference(post, options)
         add_test_error_code(post, options)
