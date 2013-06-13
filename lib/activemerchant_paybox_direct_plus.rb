@@ -97,7 +97,6 @@ module ActiveMerchant #:nodoc:
       def capture(money, authorization, options = {})
         requires!(options, :order_id, :user_reference)
         post = {}
-        add_invoice(post, options)
         add_reference(post, authorization)
         add_user_reference(post, options)
         add_test_error_code(post, options)
@@ -127,6 +126,7 @@ module ActiveMerchant #:nodoc:
       def create_payment_profile(money, creditcard, options = {})
         requires!(options, :user_reference)
         post = {}
+        add_invoice(post, options)
         add_creditcard(post, creditcard, options)
         add_user_reference(post, options)
         add_test_error_code(post, options)
