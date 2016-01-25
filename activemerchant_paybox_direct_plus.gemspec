@@ -32,14 +32,12 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
-      s.add_development_dependency(%q<activemerchant>, ["~> 1.10"])
       s.add_development_dependency(%q<shoulda>, [">= 0"])
       s.add_development_dependency(%q<bundler>, ["~> 1.0.0"])
       s.add_development_dependency(%q<jeweler>, ["~> 1.5.2"])
       s.add_development_dependency(%q<rcov>, [">= 0"])
       s.add_runtime_dependency(%q<activemerchant>, ["~> 1.10"])
     else
-      s.add_dependency(%q<activemerchant>, ["~> 1.10"])
       s.add_dependency(%q<shoulda>, [">= 0"])
       s.add_dependency(%q<bundler>, ["~> 1.0.0"])
       s.add_dependency(%q<jeweler>, ["~> 1.5.2"])
@@ -47,7 +45,6 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<activemerchant>, ["~> 1.10"])
     end
   else
-    s.add_dependency(%q<activemerchant>, ["~> 1.10"])
     s.add_dependency(%q<shoulda>, [">= 0"])
     s.add_dependency(%q<bundler>, ["~> 1.0.0"])
     s.add_dependency(%q<jeweler>, ["~> 1.5.2"])
@@ -55,4 +52,3 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<activemerchant>, ["~> 1.10"])
   end
 end
-
