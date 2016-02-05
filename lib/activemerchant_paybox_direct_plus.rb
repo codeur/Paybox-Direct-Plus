@@ -43,7 +43,7 @@ module ActiveMerchant #:nodoc:
       ALREADY_EXISTING_PROFILE_CODES = ['00016']
       UNKNOWN_PROFILE_CODES = ['00017']
       SUCCESS_CODES = ['00000']
-      UNAVAILABILITY_CODES = ['00001', '00097', '00098']
+      UNAVAILABILITY_CODES = ['00001', '00017', '00097', '00098']
       FRAUD_CODES = ['00102','00104','00105','00134','00138','00141','00143','00156','00157','00159']
       SUCCESS_MESSAGE = 'The transaction was approved'
       FAILURE_MESSAGE = 'The transaction failed'
@@ -279,4 +279,3 @@ module ActiveMerchant #:nodoc:
     end
   end
 end
-
