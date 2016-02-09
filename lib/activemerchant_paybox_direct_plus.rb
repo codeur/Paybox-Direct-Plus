@@ -194,12 +194,12 @@ module ActiveMerchant #:nodoc:
       def commit(action, money = nil, parameters = nil)
         parameters[:montant] = ('0000000000' + (money ? amount(money) : ''))[-10..-1]
         parameters[:devise] = CURRENCY_CODES[options[:currency] || currency(money)]
-        request_data = post_data(action,parameters)
-        #debugger
-        #Rails.logger.info "URL DE TEST"
-        #Rails.logger.info test? ? TEST_URL : LIVE_URL
+        request_data = post_data(action, parameters)
         response = parse(ssl_post(test? ? TEST_URL : LIVE_URL, request_data))
-        response = parse(ssl_post(test? ? TEST_URL_BACKUP : LIVE_URL_BACKUP, request_data)) if service_unavailable?(response)
+        if service_unavailable?(response)
+          request_data = post_data(action, parameters)
+          response = parse(ssl_post(test? ? TEST_URL_BACKUP : LIVE_URL_BACKUP, request_data))
+        end
         Response.new(success?(response), message_from(response), response.merge({
             :timestamp => parameters[:dateq],
             :test => test?,
