@@ -21,6 +21,7 @@ module ActiveMerchant #:nodoc:
         :subscriber_create => '00056',
         :subscriber_update => '00057',
         :subscriber_destroy => '00058',
+        :subscriber_refund => '00014'
       }
 
       CURRENCY_CODES = {
@@ -102,6 +103,14 @@ module ActiveMerchant #:nodoc:
         add_user_reference(post, options)
         add_test_error_code(post, options)
         commit('subscriber_capture', money, post)
+      end
+
+      def refund(money, authorization, options = {})
+        post = {}
+        add_invoice(post, options)
+        add_reference(post, authorization)
+        add_user_reference(post, options)
+        commit('subscriber_refund', money, post)
       end
 
       def void(money, authorization, options = {})
@@ -200,18 +209,16 @@ module ActiveMerchant #:nodoc:
           request_data = post_data(action, parameters)
           response = parse(ssl_post(test? ? TEST_URL_BACKUP : LIVE_URL_BACKUP, request_data))
         end
-        Response.new(success?(response), message_from(response), response.merge({
-            :timestamp => parameters[:dateq],
-            :test => test?,
-            :authorization => response[:numappel].to_s + response[:numtrans].to_s,
-            :cvv_result => '',
-            :avs_result => '',
-            :fraud_review => fraud_review?(response),
-            :unknown_customer_profile => unknown_customer_profile?(response),
-            :already_existing_customer_profile => already_existing_customer_profile?(response),
-            :credit_card_reference => response[:porteur],
-            :sent_params => parameters.delete_if{|key,value| ['porteur','dateval','cvv'].include?(key.to_s)}
-            })
+        Response.new(
+          success?(response),
+          message_from(response),
+          response.merge(
+            timestamp: parameters[:dateq],
+            sent_params: parameters.delete_if{|key,value| ['porteur','dateval','cvv'].include?(key.to_s)}),
+          test: test?,
+          authorization: response[:numappel].to_s + response[:numtrans].to_s,
+          fraud_review: fraud_review?(response),
+          sent_params: parameters.delete_if{|key,value| ['porteur','dateval','cvv'].include?(key.to_s)}
         )
       end
 
