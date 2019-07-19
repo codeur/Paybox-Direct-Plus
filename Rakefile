@@ -36,14 +36,14 @@ namespace :test do
     test.verbose = true
   end
 
-  require 'rcov/rcovtask'
-
-  Rake::TestTask.new(:units) do |t|
-    t.pattern = 'test/unit/**/*_test.rb'
-    t.ruby_opts << '-rubygems'
-    t.libs << 'test'
-    t.verbose = true
-  end
+  # require 'rcov/rcovtask'
+  #
+  # Rake::TestTask.new(:units) do |t|
+  #   t.pattern = 'test/unit/**/*_test.rb'
+  #   t.ruby_opts << '-rubygems'
+  #   t.libs << 'test'
+  #   t.verbose = true
+  # end
 
   Rake::TestTask.new(:remote) do |t|
     t.pattern = 'test/remote/**/*_test.rb'
@@ -55,12 +55,12 @@ end
 
 task :default => :test
 
-require 'rake/rdoctask'
-Rake::RDocTask.new do |rdoc|
-  version = File.exist?('VERSION') ? File.read('VERSION') : ""
-
-  rdoc.rdoc_dir = 'rdoc'
-  rdoc.title = "testyop #{version}"
-  rdoc.rdoc_files.include('README*')
-  rdoc.rdoc_files.include('lib/**/*.rb')
-end
+# require 'rake/rdoctask'
+# Rake::RDocTask.new do |rdoc|
+#   version = File.exist?('VERSION') ? File.read('VERSION') : ""
+#
+#   rdoc.rdoc_dir = 'rdoc'
+#   rdoc.title = "testyop #{version}"
+#   rdoc.rdoc_files.include('README*')
+#   rdoc.rdoc_files.include('lib/**/*.rb')
+# end
