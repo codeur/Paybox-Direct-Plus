@@ -1,11 +1,8 @@
-**DEPRECATED: See https://github.com/codeur/paybox_direct_plus**
-
 # Paybox Direct Plus
 
 This is a implementation of **Paybox Direct Plus** for *ActiveMerchant*.
 Paybox Direct Plus is a French payment solution allowing recurring payments,
 subscriptions, etc.
-
 
 ## Use and important information
 
