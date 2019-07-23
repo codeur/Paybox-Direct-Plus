@@ -1,3 +1,5 @@
+**DEPRECATED: Please consider to use https://github.com/codeur/paybox_direct_plus.**
+
 ## Paybox Direct Plus
 
 This is a implementation of Paybox Direct Plus for ActiveMerchant.
