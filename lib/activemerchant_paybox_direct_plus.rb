@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require 'active_merchant'
 
 module ActiveMerchant #:nodoc:
@@ -15,39 +13,39 @@ module ActiveMerchant #:nodoc:
 
       # Transactions hash
       TRANSACTIONS = {
-        subscriber_authorization: '00051',
-        subscriber_capture:       '00052',
-        subscriber_purchase:      '00053',
-        subscriber_credit:        '00054',
-        subscriber_void:          '00055',
-        subscriber_create:        '00056',
-        subscriber_update:        '00057',
-        subscriber_destroy:       '00058',
-        subscriber_refund:        '00014'
-      }.freeze
+        :subscriber_authorization => '00051',
+        :subscriber_capture => '00052',
+        :subscriber_purchase => '00053',
+        :subscriber_credit => '00054',
+        :subscriber_void => '00055',
+        :subscriber_create => '00056',
+        :subscriber_update => '00057',
+        :subscriber_destroy => '00058',
+        :subscriber_refund => '00014'
+      }
 
       CURRENCY_CODES = {
-        'AUD' => '036',
-        'CAD' => '124',
-        'CZK' => '203',
-        'DKK' => '208',
-        'HKD' => '344',
-        'ICK' => '352',
-        'JPY' => '392',
-        'NOK' => '578',
-        'SGD' => '702',
-        'SEK' => '752',
-        'CHF' => '756',
-        'GBP' => '826',
-        'USD' => '840',
-        'EUR' => '978'
-      }.freeze
+        "AUD"=> '036',
+        "CAD"=> '124',
+        "CZK"=> '203',
+        "DKK"=> '208',
+        "HKD"=> '344',
+        "ICK"=> '352',
+        "JPY"=> '392',
+        "NOK"=> '578',
+        "SGD"=> '702',
+        "SEK"=> '752',
+        "CHF"=> '756',
+        "GBP"=> '826',
+        "USD"=> '840',
+        "EUR"=> '978'
+      }
 
-      ALREADY_EXISTING_PROFILE_CODES = ['00016'].freeze
-      UNKNOWN_PROFILE_CODES = ['00017'].freeze
-      SUCCESS_CODES = ['00000'].freeze
-      UNAVAILABILITY_CODES = %w[00001 00017 00097 00098].freeze
-      FRAUD_CODES = %w[00102 00104 00105 00134 00138 00141 00143 00156 00157 00159].freeze
+      ALREADY_EXISTING_PROFILE_CODES = ['00016']
+      UNKNOWN_PROFILE_CODES = ['00017']
+      SUCCESS_CODES = ['00000']
+      UNAVAILABILITY_CODES = ['00001', '00017', '00097', '00098']
+      FRAUD_CODES = ['00102','00104','00105','00134','00138','00141','00143','00156','00157','00159']
       SUCCESS_MESSAGE = 'The transaction was approved'
       FAILURE_MESSAGE = 'The transaction failed'
 
@@ -161,19 +159,19 @@ module ActiveMerchant #:nodoc:
       end
 
       def test?
-        # Rails.logger.info "====================TEST MODE ??========================"
-        # Rails.logger.info "#{@options[:test] || Base.gateway_mode == :test}"
+        #Rails.logger.info "====================TEST MODE ??========================"
+        #Rails.logger.info "#{@options[:test] || Base.gateway_mode == :test}"
         @options[:test] || Base.gateway_mode == :test
       end
 
-    private
+      private
 
       def add_invoice(post, options)
         post[:reference] = options[:order_id]
       end
 
       def add_creditcard(post, creditcard, options = {})
-        post[:porteur] = options[:credit_card_reference] || creditcard.number
+        post[:porteur] = options[:credit_card_reference] ? options[:credit_card_reference] : creditcard.number
         post[:dateval] = expdate(creditcard)
         post[:cvv] = creditcard.verification_value if creditcard.verification_value?
       end
@@ -183,8 +181,8 @@ module ActiveMerchant #:nodoc:
       end
 
       def add_reference(post, identification)
-        post[:numappel] = identification[0, 10]
-        post[:numtrans] = identification[10, 10]
+        post[:numappel] = identification[0,10]
+        post[:numtrans] = identification[10,10]
       end
 
       def add_test_error_code(post, options)
@@ -192,13 +190,13 @@ module ActiveMerchant #:nodoc:
       end
 
       def parse(body)
-        body.encode!(Encoding::ISO_8859_1, invalid: :replace, undef: :replace, replace: '?')
+        body.encode!(Encoding::ISO_8859_1, {:invalid => :replace, :undef => :replace, :replace => '?'})
         results = {}
         body.split(/&/).each do |pair|
-          key, val = pair.split(/=/)
+          key,val = pair.split(/=/)
           results[key.downcase.to_sym] = CGI.unescape(val) if val
         end
-        # Rails.logger.info results.inspect
+        #Rails.logger.info results.inspect
         results
       end
 
@@ -215,13 +213,12 @@ module ActiveMerchant #:nodoc:
           success?(response),
           message_from(response),
           response.merge(
-            timestamp:   parameters[:dateq],
-            sent_params: parameters.delete_if { |key, _value| %w[porteur dateval cvv].include?(key.to_s) }
-          ),
-          test:          test?,
+            timestamp: parameters[:dateq],
+            sent_params: parameters.delete_if{|key,value| ['porteur','dateval','cvv'].include?(key.to_s)}),
+          test: test?,
           authorization: response[:numappel].to_s + response[:numtrans].to_s,
-          fraud_review:  fraud_review?(response),
-          sent_params:   parameters.delete_if { |key, _value| %w[porteur dateval cvv].include?(key.to_s) }
+          fraud_review: fraud_review?(response),
+          sent_params: parameters.delete_if{|key,value| ['porteur','dateval','cvv'].include?(key.to_s)}
         )
       end
 
@@ -246,44 +243,46 @@ module ActiveMerchant #:nodoc:
       end
 
       def message_from(response)
-        success?(response) ? SUCCESS_MESSAGE : (response[:commentaire] || FAILURE_MESSAGE)
+        success?(response) ? SUCCESS_MESSAGE : (response[:commentaire]  || FAILURE_MESSAGE)
       end
 
       def post_data(action, parameters = {})
+
         parameters.update(
-          version:     API_VERSION,
-          type:        TRANSACTIONS[action.to_sym],
-          dateq:       Time.now.strftime('%d%m%Y%H%M%S'),
-          numquestion: unique_id(parameters[:reference]),
-          site:        @options[:login].to_s[0, 7],
-          rang:        @options[:login].to_s[7..-1],
-          cle:         @options[:password],
-          pays:        '',
-          archivage:   parameters[:reference],
-          activite:    '027'
+          :version => API_VERSION,
+          :type => TRANSACTIONS[action.to_sym],
+          :dateq => Time.now.strftime('%d%m%Y%H%M%S'),
+          :numquestion => unique_id(parameters[:reference]),
+          :site => @options[:login].to_s[0,7],
+          :rang => @options[:login].to_s[7..-1],
+          :cle => @options[:password],
+          :pays => '',
+          :archivage => parameters[:reference],
+          :activite => '027'
         )
 
-        p = parameters.collect { |key, value| "#{key.to_s.upcase}=#{CGI.escape(value.to_s)}" }.join('&')
-        # Rails.logger.info "\n***************************"
-        # Rails.logger.debug "********** POST DATA IN PAYBOX PLUS ***********"
-        # Rails.logger.debug "*** Parameters for post data:"
-        # Rails.logger.debug "#{p.inspect}"
-        # Rails.logger.info "*****************************"
+        p = parameters.collect { |key, value| "#{key.to_s.upcase}=#{CGI.escape(value.to_s)}" }.join("&")
+        #Rails.logger.info "\n***************************"
+        #Rails.logger.debug "********** POST DATA IN PAYBOX PLUS ***********"
+        #Rails.logger.debug "*** Parameters for post data:"
+        #Rails.logger.debug "#{p.inspect}"
+        #Rails.logger.info "*****************************"
         p
       end
 
       def unique_id(seed = 0)
-        randkey = "#{seed.hash}#{Time.now.usec}".to_i % 2_147_483_647 # Max paybox value for the question number
+        randkey = "#{seed.hash}#{Time.now.usec}".to_i % 2147483647 # Max paybox value for the question number
 
         "0000000000#{randkey}"[-10..-1]
       end
 
       def expdate(credit_card)
-        year  = format('%.4i', credit_card.year)
-        month = format('%.2i', credit_card.month)
+        year  = sprintf("%.4i", credit_card.year)
+        month = sprintf("%.2i", credit_card.month)
 
         "#{month}#{year[-2..-1]}"
       end
+
     end
   end
 end

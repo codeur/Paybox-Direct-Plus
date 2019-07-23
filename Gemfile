@@ -1,8 +1,19 @@
-# frozen_string_literal: true
+source "http://rubygems.org"
+# Add dependencies required to use your gem here.
+# Example:
+#   gem "activesupport", ">= 2.3.5"
 
-source 'https://rubygems.org'
-
-git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
-
-# Specify your gem's dependencies in active_merchant-paybox_direct_plus.gemspec
-gemspec
+# Add dependencies to develop your gem here.
+# Include everything needed to run rake, tests, features, etc.
+group :development do
+  gem "activemerchant", "~> 1.10"
+  gem "shoulda", ">= 0"
+  gem "bundler", "~> 1.0.0"
+  gem "jeweler", "~> 1.5.2"
+  gem "rcov", ">= 0"
+  gem 'money'
+  gem 'mocha'
+  gem 'activesupport'
+  gem 'actionpack'
+  gem 'ruby-debug'
+end
