@@ -4,32 +4,22 @@
 $LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 
 require 'rubygems'
-require 'test/unit'
+require 'minitest/autorun'
 require 'money'
 require 'mocha'
 require 'yaml'
 require 'active_merchant'
-require File.join(File.dirname(__FILE__), '..', 'lib', 'activemerchant_paybox_direct_plus')
-require 'ruby-debug'
+require File.join(File.dirname(__FILE__), '..', 'lib', 'active_merchant', 'billing', 'paybox_direct_plus_gateway')
+# require 'ruby-debug'
 
 require 'active_support/core_ext/integer/time'
 require 'active_support/core_ext/numeric/time'
 require 'active_support/core_ext/time/acts_like'
 
-begin
-  gem 'actionpack'
-rescue LoadError
-  raise StandardError, 'The view tests need ActionPack installed as gem to run'
-end
-
-require 'action_controller'
-require 'action_view/template'
-begin
-  require 'action_dispatch/testing/test_process'
-rescue LoadError
-  require 'action_controller/test_process'
-end
-require 'active_merchant/billing/integrations/action_view_helper'
+# require 'action_controller'
+# require 'action_view/template'
+# require 'action_dispatch/testing/test_process'
+# require 'active_merchant/billing/integrations/action_view_helper'
 
 ActiveMerchant::Billing::Base.mode = :test
 
@@ -45,7 +35,7 @@ end
 
 module ActiveMerchant
   module Assertions
-    AssertionClass = RUBY_VERSION > '1.9' ? MiniTest::Assertion : Test::Unit::AssertionFailedError
+    AssertionClass = defined?(Minitest) ? MiniTest::Assertion : Test::Unit::AssertionFailedError
 
     def assert_field(field, value)
       clean_backtrace do
@@ -62,13 +52,9 @@ module ActiveMerchant
     #   assert_false something_that_should_be_false
     #
     # An optional +msg+ parameter is available to help you debug.
-    def assert_false(boolean, message = nil)
-      message = build_message message, '<?> is not false or nil.', boolean
-
+    def assert_false(boolean, msg = nil)
       clean_backtrace do
-        assert_block message do
-          !boolean
-        end
+        assert !boolean, message(msg, "#{boolean.inspect} is not false or nil.")
       end
     end
 
@@ -107,6 +93,11 @@ module ActiveMerchant
       end
     end
 
+    def assert_scrubbed(unexpected_value, transcript)
+      regexp = (Regexp === unexpected_value ? unexpected_value : Regexp.new(Regexp.quote(unexpected_value.to_s)))
+      refute_match regexp, transcript, 'Expected the value to be scrubbed out of the transcript'
+    end
+
   private
 
     def clean_backtrace
@@ -136,7 +127,7 @@ module ActiveMerchant
         first_name:         'Longbob',
         last_name:          'Longsen',
         verification_value: '123',
-        type:               'visa'
+        brand:              'visa'
       }.update(options)
 
       Billing::CreditCard.new(defaults)
@@ -197,9 +188,26 @@ module ActiveMerchant
   end
 end
 
-Test::Unit::TestCase.class_eval do
+Minitest::Test.class_eval do
   include ActiveMerchant::Billing
   include ActiveMerchant::Assertions
-  include ActiveMerchant::Utils
   include ActiveMerchant::Fixtures
+
+  def capture_transcript(gateway)
+    transcript = StringIO.new
+    gateway.class.wiredump_device = transcript
+
+    yield
+
+    transcript.string
+  end
+
+  def dump_transcript_and_fail(gateway, amount, credit_card, params)
+    transcript = capture_transcript(gateway) do
+      gateway.purchase(amount, credit_card, params)
+    end
+
+    File.open('transcript.log', 'w') { |f| f.write(transcript) }
+    assert false, 'A purchase transcript has been written to transcript.log for you to test scrubbing with.'
+  end
 end

@@ -37,10 +37,12 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'activemerchant', '~> 1.10'
-  spec.add_development_dependency 'active_support', '>= 5'
+  spec.add_dependency 'activemerchant', '~> 1.0'
+  spec.add_development_dependency 'actionpack'
+  spec.add_development_dependency 'activesupport'
   spec.add_development_dependency 'bundler', '~> 1.17'
   spec.add_development_dependency 'minitest', '~> 5.0'
-  spec.add_development_dependency 'rake', '>= 10'
-  spec.add_development_dependency 'shoulda', '>= 0'
+  spec.add_development_dependency 'mocha'
+  spec.add_development_dependency 'money'
+  spec.add_development_dependency 'rake'
 end
